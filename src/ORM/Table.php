@@ -1072,6 +1072,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
      * - className: The class name of the target table object.
      * - targetTable: An instance of a table object to be used as the target table.
      * - foreignKey: The name of the field to use as foreign key.
+     * - targetBindingKey: The name of the field to use as the target binding key.
      * - targetForeignKey: The name of the field to use as the target foreign key.
      * - joinTable: The name of the table representing the link between the two
      * - through: If you choose to use an already instantiated link table, set this

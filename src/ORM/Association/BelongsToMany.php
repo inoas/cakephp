@@ -101,6 +101,14 @@ class BelongsToMany extends Association
      */
     protected $_saveStrategy = self::SAVE_REPLACE;
 
+
+    /**
+     * The name of the field representing the binding key to the target table
+     *
+     * @var string|array
+     */
+    protected $_targetBindingKey;
+
     /**
      * The name of the field representing the foreign key to the target table
      *
@@ -155,6 +163,37 @@ class BelongsToMany extends Association
      * @var mixed
      */
     protected $_sort;
+
+    /**
+     * Sets the name of the field representing the binding key to the target table.
+     *
+     * @param string $key the key to be used to link both tables together
+     * @return $this
+     */
+    public function setTargetBindingKey($key)
+    {
+        $this->_targetBindingKey = $key;
+
+        return $this;
+    }
+
+    /**
+     * Gets the name of the field representing the binding key to the target table.
+     *
+     * @return string
+     */
+    public function getTargetBindingKey()
+    {
+        if ($this->_targetBindingKey === null) {
+            if ($this->_targetBindingKey === null) {
+                $this->_targetBindingKey = $this->isOwningSide($this->getSource()) ?
+                    $this->getSource()->getPrimaryKey() :
+                    $this->getTarget()->getPrimaryKey();
+            }
+        }
+
+        return $this->_targetBindingKey;
+    }
 
     /**
      * Sets the name of the field representing the foreign key to the target table.
@@ -783,7 +822,7 @@ class BelongsToMany extends Association
         $belongsTo = $junction->association($target->getAlias());
         $foreignKey = (array)$this->getForeignKey();
         $assocForeignKey = (array)$belongsTo->getForeignKey();
-        $targetPrimaryKey = (array)$target->getPrimaryKey();
+        $targetBindingKey = (array)$this->getTargetBindingKey();
         $bindingKey = (array)$this->getBindingKey();
         $jointProperty = $this->_junctionProperty;
         $junctionAlias = $junction->getAlias();
@@ -794,7 +833,7 @@ class BelongsToMany extends Association
                 $joint = new $entityClass([], ['markNew' => true, 'source' => $junctionAlias]);
             }
             $sourceKeys = array_combine($foreignKey, $sourceEntity->extract($bindingKey));
-            $targetKeys = array_combine($assocForeignKey, $e->extract($targetPrimaryKey));
+            $targetKeys = array_combine($assocForeignKey, $e->extract($targetBindingKey));
 
             if ($sourceKeys !== $joint->extract($foreignKey)) {
                 $joint->set($sourceKeys, ['guard' => false]);
@@ -1244,13 +1283,13 @@ class BelongsToMany extends Association
             }
         }
 
-        $primary = (array)$target->getPrimaryKey();
+        $targetBindingKey = (array)$this->getTargetBindingKey();
         $jointProperty = $this->_junctionProperty;
         foreach ($targetEntities as $k => $entity) {
             if (!($entity instanceof EntityInterface)) {
                 continue;
             }
-            $key = array_values($entity->extract($primary));
+            $key = array_values($entity->extract($targetBindingKey));
             foreach ($present as $i => $data) {
                 if ($key === $data && !$entity->get($jointProperty)) {
                     unset($targetEntities[$k], $present[$i]);
@@ -1313,7 +1352,7 @@ class BelongsToMany extends Association
         $source = $this->getSource();
         $junction = $this->junction();
         $jointProperty = $this->_junctionProperty;
-        $primary = (array)$target->getPrimaryKey();
+        $targetBindingKey = (array)$this->getTargetBindingKey();
 
         $result = [];
         $missing = [];
@@ -1325,7 +1364,7 @@ class BelongsToMany extends Association
             $joint = $entity->get($jointProperty);
 
             if (!$joint || !($joint instanceof EntityInterface)) {
-                $missing[] = $entity->extract($primary);
+                $missing[] = $entity->extract($targetBindingKey);
                 continue;
             }
 
@@ -1408,6 +1447,9 @@ class BelongsToMany extends Association
      */
     protected function _options(array $opts)
     {
+        if (!empty($opts['targetBindingKey'])) {
+            $this->setTargetBindingKey($opts['targetBindingKey']);
+        }
         if (!empty($opts['targetForeignKey'])) {
             $this->setTargetForeignKey($opts['targetForeignKey']);
         }

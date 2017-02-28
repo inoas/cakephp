@@ -364,7 +364,7 @@ class Marshaller
         $data = array_values($data);
 
         $target = $assoc->getTarget();
-        $primaryKey = array_flip((array)$target->getPrimaryKey());
+        $primaryKey = array_flip((array)$assoc->getTargetBindingKey());
         $records = $conditions = [];
         $primaryCount = count($primaryKey);
         $conditions = [];
