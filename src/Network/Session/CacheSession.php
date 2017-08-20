@@ -94,7 +94,7 @@ class CacheSession implements SessionHandlerInterface
     /**
      * Helper function called on write for cache sessions.
      *
-     * @param int $id ID that uniquely identifies session in database
+     * @param string $id ID that uniquely identifies session in database
      * @param mixed $data The value of the data to be saved.
      * @return bool True for successful write, false otherwise.
      */
@@ -110,7 +110,7 @@ class CacheSession implements SessionHandlerInterface
     /**
      * Method called on the destruction of a cache session.
      *
-     * @param int $id ID that uniquely identifies session in cache
+     * @param string $id ID that uniquely identifies session in cache
      * @return bool Always true.
      */
     public function destroy($id)
