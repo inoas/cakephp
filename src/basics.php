@@ -62,6 +62,31 @@ if (!function_exists('debug')) {
 
 }
 
+if (!function_exists('warn')) {
+    /**
+     * Throws a warning.
+     *
+     * @param string $message The warning message.
+     * @return void
+     */
+    function warn($message)
+    {
+        $stackFrame = 2;
+        $trace = debug_backtrace();
+        if (isset($trace[$stackFrame])) {
+            $frame = $trace[$stackFrame];
+            $frame += ['file' => '[internal]', 'line' => '??'];
+            $message = sprintf(
+                '%s - %s, line: %s',
+                $message,
+                $frame['file'],
+                $frame['line']
+            );
+        }
+        trigger_error($message, E_USER_WARNING);
+    }
+}
+
 if (!function_exists('stackTrace')) {
     /**
      * Outputs a stack trace based on the supplied options.
